@@ -1,0 +1,66 @@
+# ==========================================
+# Root
+# ==========================================
+root = true
+
+# ==========================================
+# Global settings
+# ==========================================
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ==========================================
+# TypeScript / React
+# ==========================================
+[*.{ts,tsx}]
+indent_size = 2
+quote_type = single
+curly_bracket_next_line = false
+spaces_around_operators = true
+spaces_around_brackets = false
+continuation_indent_size = 2
+
+# ==========================================
+# JavaScript
+# ==========================================
+[*.{js,jsx,ts,tsx,php,html,xml,md,mjs}]
+indent_size = 2
+quote_type = single
+
+# ==========================================
+# JSON
+# ==========================================
+[*.json]
+indent_size = 2
+insert_final_newline = true
+
+# ==========================================
+# Markdown
+# ==========================================
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+# ==========================================
+# YAML
+# ==========================================
+[*.{yml,yaml,js,jsx,ts,tsx,php,html,xml,md}]
+indent_size = 2
+
+# ==========================================
+# HTML
+# ==========================================
+[*.html]
+indent_size = 2
+
+# ==========================================
+# CSS / SCSS
+# ==========================================
+[*.{css,scss,sass}]
+indent_size = 2

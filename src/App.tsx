@@ -1,15 +1,20 @@
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 
 
-import './App.css'
 
 function App() {
 
 
+
   return (
     <>
-      <div className="text-2xl font-bold text-blue-300 text-center">je ne sais pas comment faire</div>
+
+      <Navbar/>
+    <Home/>
+
     </>
   )
 }
 
-export default App
+export default App;
