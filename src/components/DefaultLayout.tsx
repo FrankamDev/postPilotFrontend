@@ -1,141 +1,9 @@
-// import { useState } from "react";
-// import { Link, Navigate, Outlet } from "react-router-dom";
-// import { useStateContext } from "../context/ContextProvider";
 
-// export default function DefaultLayout() {
-
-// const [sidebarOpen, setSidebarOpen] = useState(true);
-//   const [dropdownOpen, setDropdownOpen] = useState(false);
-// const {user, token} = useStateContext()
-
-//   if (!token) {
-//     return <Navigate to="/login" />
-//   }
-//   const onLogout = (e) => {
-//   e.preventDefault();
-//   // localStorage.removeItem("token");
-//   // window.location.reload();
-// };
-//   return (
-//     <div className="min-h-screen flex bg-gray-100">
-
-//       {/* Sidebar */}
-      // <aside
-      //   className={`
-      //     ${sidebarOpen ? "w-55" : "w-20"}
-      //     bg-slate-900 text-gray-300
-      //     transition-all duration-300 ease-in-out
-      //     flex flex-col
-      //   `}
-      // >
-      //   {/* Logo */}
-      //   <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
-      //     {sidebarOpen && (
-      //       <h1 className="text-lg font-semibold text-white tracking-wide">
-      //         SaaS Pro
-      //       </h1>
-      //     )}
-
-      //     <button
-      //       onClick={() => setSidebarOpen(!sidebarOpen)}
-      //       className="text-gray-400 hover:text-white transition"
-      //     >
-      //       ☰
-      //     </button>
-      //   </div>
-
-      //   {/* Navigation */}
-      //   <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
-      //     <Link
-      //       to="/dashboard"
-      //       className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 transition"
-      //     >
-      //       <span className="text-indigo-500">●</span>
-      //       {sidebarOpen && "Dashboard"}
-      //     </Link>
-
-      //     <Link
-      //       to="/users"
-      //       className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 transition"
-      //     >
-      //       <span className="text-indigo-500">●</span>
-      //       {sidebarOpen && "Users"}
-      //     </Link>
-      //   </nav>
-
-      //   {/* User Dropdown */}
-      //   <div className="relative border-t border-slate-800 p-4">
-      //     <button
-      //       onClick={() => setDropdownOpen(!dropdownOpen)}
-      //       className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition"
-      //     >
-      //       <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
-      //         {user?.name?.charAt(0)}
-      //       </div>
-
-      //       {sidebarOpen && (
-      //         <div className="text-left">
-      //           <div className="text-sm font-medium text-white">
-      //             {user?.name}
-      //           </div>
-      //           <div className="text-xs text-gray-400">
-      //             {user?.email}
-      //           </div>
-      //         </div>
-      //       )}
-      //     </button>
-
-      //     {/* Dropdown Panel */}
-      //     {dropdownOpen && (
-      //       <div className="absolute bottom-16 -left-3 w-55 bg-gray-700 rounded-xl shadow-xl py-2 animate-fadeIn">
-      //         <Link
-      //           to="/profile"
-      //           className="block px-4 py-2 hover:bg-gray-400 text-sm"
-      //         >
-      //           Profil
-      //         </Link>
-
-      //         <button
-      //           onClick={onLogout}
-      //           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
-      //         >
-      //           Déconnexion
-      //         </button>
-      //       </div>
-      //     )}
-      //   </div>
-      // </aside>
-
-
-//       {/* Main Content */}
-//       <div className="flex-1 flex flex-col">
-
-//         {/* Header */}
-//         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
-//           <h2 className="text-lg font-semibold text-gray-800">
-//             Tableau de bord
-//           </h2>
-
-//           <div className="text-sm text-gray-500">
-//             Bienvenue, <span className="text-gray-800 font-medium">{user?.name}</span>
-//           </div>
-//         </header>
-
-//         {/* Content */}
-//         <main className="flex-1 p-8">
-//           <div className="bg-white rounded-2xl shadow-sm p-8">
-//             <Outlet />
-//           </div>
-//         </main>
-
-//       </div>
-//     </div>
-//   )
-// }
 
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider";
+import axiosClient from "../axios-client";
 
 export default function DefaultLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -146,7 +14,7 @@ export default function DefaultLayout() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
-  const { user, token } = useStateContext();
+  const { user, token, setUser, setToken } = useStateContext();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -187,10 +55,23 @@ export default function DefaultLayout() {
     { path: "/projects", label: "Projets", icon: "folder-kanban" },
     { path: "/analytics", label: "Statistiques", icon: "bar-chart-3" },
     { path: "/settings", label: "Paramètres", icon: "settings" },
-     { path: "/projects", label: "Projets", icon: "folder-kanban" },
+    { path: "/projects", label: "Projets", icon: "folder-kanban" },
 
   ];
+  const onLogout = (e) => {
+    // e.preventDefault();
 
+    axiosClient.post('/logout').then(() => {
+      setUser(null);
+      setToken(null)
+    })
+  }
+
+  useEffect(() => {
+    axiosClient.get('/user').then(({ data }) => {
+      setUser(data);
+    })
+  }, [])
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
       {/* ── SIDEBAR ──────────────────────────────────────────────── */}
@@ -209,10 +90,10 @@ export default function DefaultLayout() {
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800/60">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/25">
-              SP
+              NH
             </div>
             <span className="text-xl font-semibold tracking-tight text-white">
-              SaaS Pro
+              NEXTHUB
             </span>
           </div>
 
@@ -266,8 +147,7 @@ export default function DefaultLayout() {
               </div>
 
               <div className="text-left min-w-0">
-                <div className="font-medium truncate text-white">{user?.name || "Utilisateur"}</div>
-                <div className="text-xs text-slate-400 truncate">{user?.email || "—"}</div>
+                <div className="font-medium truncate text-white">{user?.name}</div>                <div className="text-xs text-slate-400 truncate">{user?.email || "—"}</div>
               </div>
             </button>
 
@@ -277,7 +157,7 @@ export default function DefaultLayout() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   Mon profil
                 </Link>
-                <button onClick={() => alert("Logout à implémenter")} className="w-full text-left flex items-center gap-3 px-5 py-2.5 text-red-400 hover:bg-slate-800/70 hover:text-red-300 transition">
+                <button onClick={() => onLogout()} className="w-full text-left flex items-center gap-3 px-5 py-2.5 text-red-400 hover:bg-slate-800/70 hover:text-red-300 transition">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
                   Déconnexion
                 </button>
@@ -338,7 +218,7 @@ export default function DefaultLayout() {
             </button>
 
             <div className="hidden sm:block text-sm text-slate-600 dark:text-slate-400">
-              Bonjour, <span className="font-medium text-cyan-600 dark:text-cyan-400">{user?.name?.split(" ")[0] || "toi"}</span>
+              Bienvenue, <span className="font-medium text-cyan-600 dark:text-cyan-400">{user?.name?.split(" ")[0] || "toi"}</span>
             </div>
           </div>
         </header>
